@@ -57,7 +57,7 @@ export default {
     },
     data() {
         return{
-            //FIELD TABLE YANAG AKAN DITAMPILKAN DATANYA
+            //FIELD TABLE YANG AKAN DITAMPILKAN DATANYA
             fields: [
                 { key: 'photo', label: 'Photo' },
                 { key: 'name', label: 'Nama Lengkap' },
@@ -75,7 +75,7 @@ export default {
         //STATE PAGE UNTUK MENGAMBIL DAN MENGUBAH DATA STATE
         page: {
             get() {
-
+                return this.$store.state.courier.page
             },
             set(val) {
                 this.$store.commit('courier/SET_PAGE', val)
