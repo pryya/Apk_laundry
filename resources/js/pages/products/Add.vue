@@ -17,11 +17,13 @@
 </template>
 <script>
     import { mapActions, mapState, mapMutations } from 'vuex'
-    import FormProduct from './Form.vue'
+    import FormProduct from './Form.vue' // MENGIMPORT FILE Form.vue
     export default {
         name: 'AddProduct',
         methods: {
+            // KETIKA TOMBOL ADD NEW DITEKAN, MAKA FUNGSI INI AKAN BERJALAN
             submit() {
+                // KEMUDIAN AKAN MENJALANKAN FUNGSI SUBMIT() PADA FILE FORM.VUE MENGGUNAKAN $REFS
                 this.$refs.formProduct.submit()
             }
         },
