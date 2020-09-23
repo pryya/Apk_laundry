@@ -22,17 +22,19 @@ class ProductController extends Controller
 
     public function getLaundryType()
     {
-        $type = LaundryType::orderBy('name', 'ASC')->get();
+        $type = LaundryType::orderBy('name', 'ASC')->get(); // GET DATA LAUNDRY TYPE DENGAN DI URUTKAN BERDASARKAN NAMA
         return response()->json(['status' => 'success', 'data' => $type]);
     }
 
     public function storeLaundryType(Request $request)
     {
+        // VALIDASI DATA YANG DIKIRIM
         $this->validate($request, [
             'name' => 'required|unique:laundry_types,name'
         ]);
 
-        LaundryType::create(['name' => $request->name]);
+        // SIMPAN DATA BARU KE DALAM TABLE LAUNDRY_TYPES
+        LaundryType::create(['name' => $request->name_laundry_type]);
         return response()->json(['status' => 'success']);
     }
 
@@ -45,6 +47,7 @@ class ProductController extends Controller
             'laundry_type' => 'required'
         ]);
 
+        // SIMPAN DATA PRODUCT KE DALAM TABLE laundry_prices
         try {
             LaundryPrice::create([
                 'name' => $request->name,
@@ -61,13 +64,14 @@ class ProductController extends Controller
 
     public function edit($id)
     {
-        $laundry = LaundryPrice::find($id);
+        $laundry = LaundryPrice::find($id); // MENGAMBIL DATA BERDASARKAN ID
         return response()->json(['status' => 'success', 'data' => $laundry]);
     }
 
     public function update(Request $request, $id)
     {
-        $laundry = LaundryPrice::find($id);
+        $laundry = LaundryPrice::find($id); // MENGAMBIL DATA BERDASARKAN ID
+        // KEMUDIAN MENG-UPDATE DATA TERSEBUT
         $laundry->update([
             'name' => $request->name,
             'unit_type' => $request->unit_type,
