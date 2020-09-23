@@ -28,6 +28,7 @@ Route::group(['middleware' => 'auth:api'], function() {
     Route::post('/couriers/{id}', 'API\UserController@update')->name('couriers.update');
 
     Route::resource('product', 'API\ProductController')->except(['create', 'show']);
+
     Route::get('/product/laundry-type', 'API\ProductController@getLaundryType');
     Route::post('/product/laundry-type', 'API\ProductController@storeLaundryType');
 
@@ -38,6 +39,7 @@ Route::group(['middleware' => 'auth:api'], function() {
     Route::post('set-role-user', 'API\RolePermissionController@setRoleUser')->name('user.set_role');
 
     Route::get('user-authenticated', 'API\UserController@getUserLogin')->name('user.authenticated');
-Route::get('user-lists', 'API\UserController@userLists')->name('user.index');
+    Route::get('user-lists', 'API\UserController@userLists')->name('user.index');
 
+    Route::resource('expenses', 'API\ExpensesController')->except(['create', 'show']);
 });

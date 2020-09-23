@@ -5,22 +5,31 @@ import Home from './pages/Home.vue'
 import Login from './pages/Login.vue'
 import store from './store.js'
 
+// OUTLET
 import IndexOutlet from './pages/outlets/Index.vue'
 import DataOutlet from './pages/outlets/Outlet.vue'
 import AddOutlet from './pages/outlets/Add.vue'
 import EditOutlet from './pages/outlets/Edit.vue'
 
+// COURIER
 import IndexCourier from './pages/couriers/Index.vue'
 import DataCouriers from './pages/couriers/Courier.vue'
 import AddCouriers from './pages/couriers/Add.vue'
 import EditCouriers from './pages/couriers/Edit.vue'
 
+// PRODUCT
 import IndexProduct from './pages/products/Index.vue'
 import DataProduct from './pages/products/Product.vue'
 import AddProduct from './pages/products/Add.vue'
+import EditProduct from './pages/products/Edit.vue'
 
+// ROLE & PERMISSION
 import Setting from './pages/setting/Index.vue'
 import SetPermission from './pages/setting/roles/SetPermission.vue'
+
+// Notification
+import IndexExpenses from './pages/expenses/Index.vue'
+import DataExpenses from './pages/expenses/Expenses.vue'
 
 Vue.use(Router)
 
@@ -42,7 +51,7 @@ const router = new Router({
         {
             path: '/outlets',
             component: IndexOutlet,
-            meta: { requiresAuth: true },
+            meta: { requiresAuth: true }, // fungsi untuk mengharuskan
             children: [{
                     path: '',
                     name: 'outlets.data',
@@ -104,6 +113,12 @@ const router = new Router({
                     component: AddProduct,
                     meta: { title: 'Add New Product' }
                 },
+                {
+                    path: 'edit/:id',
+                    name: 'products.edit',
+                    component: EditProduct,
+                    meta: { title: 'Edit Product' }
+                }
 
             ]
         },
@@ -117,6 +132,17 @@ const router = new Router({
                 component: SetPermission,
                 meta: { title: 'Set Permissions' }
             }, ]
+        },
+        {
+            path: '/expenses',
+            component: IndexExpenses,
+            meta: { requiresAuth: true },
+            children: [{
+                path: '',
+                name: 'expenses.data',
+                component: DataExpenses,
+                meta: { title: 'Manage Expenses' }
+            }]
         }
     ]
 });
