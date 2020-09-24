@@ -30,7 +30,47 @@ const actions = {
                     resolve(response.data)
                 })
         })
-    }
+    },
+
+    submitExpense({ dispatch, commit }, payload) {
+        return new Promise((resolve, reject) => {
+            //KIRIM PERMINTAAN UNTUK MENAMBAHKAN DATA DENGAN METHOD POST
+            $axios.post(`/expenses`, payload)
+                .then((response) => {
+                    //AMBIL DATA YANG BARU
+                    dispatch('getExpenses').then(() => {
+                        resolve(response.data)
+                    })
+                })
+                .catch((error) => {
+                    //JIKA VALIDASI ERROR
+                    if (error.response.status == 422) {
+                        //MAKA ERRORNYA DI ASSIGN KE STATE ERRORS
+                        commit('SET_ERRORS', error.response.data.errors, { root: true })
+                    }
+                })
+        })
+    },
+    //FUNGSI INI UNTUK MENGAMBIL SINGLE DATA
+    editExpenses({ commit }, payload) {
+        return new Promise((resolve, reject) => {
+            //MENGIRIMKAN PERMINTAAN KE BACKEND UNTUK MENGAMBIL DATA BERDASARKAN ID
+            $axios.get(`/expenses/${payload}/edit`)
+                .then((response) => {
+                    resolve(response.data)
+                })
+        })
+    },
+    //FUNGSI INI UNTUK MENGUPDATE DATA
+    updateExpenses({ commit }, payload) {
+        return new Promise((resolve, reject) => {
+            //MENGIRIMKAN PERMINTAAN KE SERVER UNTUK MENGUBAH DATA BERDASARKAN ID
+            $axios.put(`/expenses/${payload.id}`, payload)
+                .then((response) => {
+                    resolve(response.data)
+                })
+        })
+    },
 
 }
 

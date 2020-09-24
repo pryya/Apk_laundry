@@ -30,6 +30,7 @@ import SetPermission from './pages/setting/roles/SetPermission.vue'
 // Notification
 import IndexExpenses from './pages/expenses/Index.vue'
 import DataExpenses from './pages/expenses/Expenses.vue'
+import CreateExpenses from './pages/expenses/Add.vue'
 
 Vue.use(Router)
 
@@ -138,11 +139,18 @@ const router = new Router({
             component: IndexExpenses,
             meta: { requiresAuth: true },
             children: [{
-                path: '',
-                name: 'expenses.data',
-                component: DataExpenses,
-                meta: { title: 'Manage Expenses' }
-            }]
+                    path: '',
+                    name: 'expenses.data',
+                    component: DataExpenses,
+                    meta: { title: 'Manage Expenses' }
+                },
+                {
+                    path: 'add',
+                    name: 'expenses.create',
+                    component: CreateExpenses,
+                    meta: { title: 'Add New Expenses' }
+                }
+            ]
         }
     ]
 });
