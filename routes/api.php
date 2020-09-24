@@ -42,4 +42,6 @@ Route::group(['middleware' => 'auth:api'], function() {
     Route::get('user-lists', 'API\UserController@userLists')->name('user.index');
 
     Route::resource('expenses', 'API\ExpensesController')->except(['create', 'show']);
+
+    Route::resource('customer', 'API\CustomerController')->except(['create', 'show']);
 });

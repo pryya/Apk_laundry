@@ -19,6 +19,7 @@
                         <li class="dropdown" v-if="authenticated.role == 0">
                             <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">Settings <span class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
+                                <li><router-link :to="{ name: 'customers.data' }">Customer</router-link></li>
                                 <li><router-link :to="{name: 'role.permissions'}">Role Permission</router-link></li>
                             </ul>
                         </li>

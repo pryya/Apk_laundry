@@ -30,7 +30,13 @@ import SetPermission from './pages/setting/roles/SetPermission.vue'
 // Notification
 import IndexExpenses from './pages/expenses/Index.vue'
 import DataExpenses from './pages/expenses/Expenses.vue'
-import CreateExpenses from './pages/expenses/Add.vue'
+// import CreateExpenses from './pages/expenses/Add.vue'
+
+// Customer
+import IndexCustomer from './pages/customers/Index.vue'
+import DataCustomer from './pages/customers/Customer.vue'
+import AddCustomer from './pages/customers/Add.vue'
+import EditCustomer from './pages/customers/Edit.vue'
 
 Vue.use(Router)
 
@@ -144,11 +150,35 @@ const router = new Router({
                     component: DataExpenses,
                     meta: { title: 'Manage Expenses' }
                 },
+                // {
+                //     path: 'add',
+                //     name: 'expenses.create',
+                //     component: CreateExpenses,
+                //     meta: { title: 'Add New Expenses' }
+                // }
+            ]
+        },
+        {
+            path: '/customers',
+            component: IndexCustomer,
+            meta: { requiresAuth: true },
+            children: [{
+                    path: '',
+                    name: 'customers.data',
+                    component: DataCustomer,
+                    meta: { title: 'Manage Customers' }
+                },
                 {
                     path: 'add',
-                    name: 'expenses.create',
-                    component: CreateExpenses,
-                    meta: { title: 'Add New Expenses' }
+                    name: 'customers.add',
+                    component: AddCustomer,
+                    meta: { title: 'Add New Customers' }
+                },
+                {
+                    path: 'edit/:id',
+                    name: 'customers.edit',
+                    component: EditCustomer,
+                    meta: { title: 'Edit Customer' }
                 }
             ]
         }
