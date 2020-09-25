@@ -44,4 +44,6 @@ Route::group(['middleware' => 'auth:api'], function() {
     Route::resource('expenses', 'API\ExpensesController')->except(['create', 'show']);
 
     Route::resource('customer', 'API\CustomerController')->except(['create', 'show']);
+
+    Route::resource('transaction', 'API\TransactionController')->except(['create', 'show']);
 });
