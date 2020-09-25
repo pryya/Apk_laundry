@@ -60,7 +60,7 @@
         </div>
         <div class="col-md-12">
             <hr>
-            <button class="btn btn-warning btn-sm" style="margin-bottom: 10px" @click="addProduct">Tambah</button>
+            <button class="btn btn-warning btn-sm" style="margin-bottom: 10px" v-if="filterProduct.length == 0" @click="addProduct">Tambah</button>
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead>
@@ -112,6 +112,8 @@
         <div class="col-md-12" v-if="isSuccess">
             <div class="alert alert-success">
                 Transaksi Berhasil, Total Tagihan: Rp {{ total }}
+
+                  <strong><router-link :to="{ name: 'transactions.view', params: {id: transaction_id} }">Lihat Detail</router-link></strong>
             </div>
         </div>
     </div>
@@ -130,6 +132,7 @@ export default {
         return {
             isForm: false,
             isSuccess: false,
+            transaction_id: null,
             transactions: {
                 customer_id: null,
                 //KITA SET DEFAULT DETAILNYA 1 ITEM YANG KOSONG
@@ -148,7 +151,7 @@ export default {
         total() {
             //MENJUMLAH SUBTOTAL
             return _.sumBy(this.transactions.detail, function(o) {
-                return o.subtotal
+                return parseFloat(o.subtotal)
             })
         },
         filterProduct() {
@@ -228,7 +231,10 @@ export default {
             // KEMUDIAN DIHITUNG, JIKA JUMLAH DATA YANG SUDAH DIFILTER LEBIH DARI 0
             if (filter.length > 0) {
                 // MAKA INSTRUKSI UNTUK MEMBUAT TRANSAKSI DIJALANKAN
-                this.createTransaction(this.transactions).then(() => this.isSuccess = true)
+                this.createTransaction(this.transactions).then((res) => {
+                this.transaction_id = res.data.id
+                this.isSuccess = true
+        })
             }
         },
         resetForm() {

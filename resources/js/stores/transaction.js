@@ -1,8 +1,10 @@
+import { reject } from 'lodash'
 import $axios from '../api.js'
 
 const state = () => ({
     customers: [], //UNTUK MENAMPUNG DATA CUSTOMER YANG DI-REQUEST
     products: [], //UNTUK MENAMPUNG DATA PRODUCT YANG DI-REQUEST
+    transaction: [],
     page: 1
 })
 
@@ -17,7 +19,11 @@ const mutations = {
     },
     SET_PAGE(state, payload) {
         state.page = payload
-    }
+    },
+
+    ASSIGN_TRANSACTION(state, payload) {
+        state.transaction = payload
+    },
 }
 
 const actions = {
@@ -58,7 +64,34 @@ const actions = {
                     resolve(response.data)
                 })
         })
-    }
+    },
+    detailTransaction({ commit }, payload) {
+        //MENGIRIM PERMINTAAN KE SERVER UNTUK MENGAMBIL DATA BERDASARKAN ID TRANSAKSI
+        return new Promise((resolve, reject) => {
+            $axios.get(`/transaction/${payload}/edit`)
+                .then((response) => {
+                    //DATANYA KITA SIMPAN KE DALAM STATE TRANSACTION MENGGUNAKAN MUTATION
+                    commit('ASSIGN_TRANSACTION', response.data.data)
+                    resolve(response.data)
+                })
+        })
+    },
+    completeItem({ commit }, payload) {
+        return new Promise((resolve, reject) => {
+            $axios.post(`/transaction/complete-item`, payload)
+                .then((response) => {
+                    resolve(response.data)
+                })
+        })
+    },
+    payment({ commit }, payload) {
+        return new Promise((resolve, reject) => {
+            $axios.post(`/transaction/payment`, payload)
+                .then((response) => {
+                    resolve(response.data)
+                })
+        })
+    },
 }
 
 export default {

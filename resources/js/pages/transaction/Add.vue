@@ -26,6 +26,7 @@
         name: 'AddTransaction',
         methods: {
             clearForm() {
+                // CODE DIBAWAH INI AKAN MEJALANKAN resetForm() YANG BERADA PADA FILE Form.vue
                 this.$refs.form.resetForm()
             },
             //KETIKA TOMBOL CREATE TRANSACTION DITEKAN MAKA AKAN MENJALAN METHOD INI
