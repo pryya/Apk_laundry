@@ -9,9 +9,38 @@ use App\DetailTransaction;
 use Carbon\Carbon;
 use App\Payment;
 use Illuminate\Support\Facades\DB;
+use App\Http\Resources\TransactionCollection;
 
 class TransactionController extends Controller
 {
+    public function index()
+    {
+        $search = request()->q; //TAMPUNG QUERY PENCARIAN DARI URL
+        $user = request()->user(); //GET USER YANG SEDANG LOGIN
+
+        //BUAT QUERY KE DATABASE DENGAN ME-LOAD RELASI TABLE TERKAIT DAN DIURUTKAN BERDASARKAN CREATED_AT
+        //whereHas() DIGUNAKAN UNTUK MEN-FILTER NAMA CUSTOMER YANG DICARI USER, AKAN TETAPI NAMA TERSEBUT BERADA PADA TABLE CUSTOMERS
+        //PARAMETER PERTAMA DARI whereHas() ADALAH NAMA RELASI YANG DIDEFINISIKAN DIMODEL
+        $transaction = Transaction::with(['user', 'detail', 'customer'])->orderBy('created_at', 'DESC')
+            ->whereHas('customer', function($q) use($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%');
+            });
+
+      //JIKA FILTERNYA ADALAH 0 DAN 1. DIMANA 0 = PROSES, 1 = SELESAI DAN 2 = SEMUA DATA
+        if (in_array(request()->status, [0,1])) {
+            //MAKA AMBIL DATA BERDASARKAN STATUS TERSEBUT
+            $transaction = $transaction->where('status', request()->status);
+        }
+
+        //JIKA ROLENYA BUKAN SUPERADMIN
+        if ($user->role != 0) {
+            //MAKA USER HANYA AKAN MENDAPATKAN TRANSAKSI MILIKNYA SAJA
+            $transaction = $transaction->where('user_id', $user->id);
+        }
+        $transaction = $transaction->paginate(10);
+        return new TransactionCollection($transaction);
+    }
+
     public function store(Request $request)
     {
         //VALIDASI
@@ -103,42 +132,51 @@ class TransactionController extends Controller
     }
 
     public function makePayment(Request $request)
-    {
-        //VALIDASI REQUEST
-        $this->validate($request, [
-            'transaction_id' => 'required|exists:transactions,id',
-            'amount' => 'required|integer'
-        ]);
+{
+    $this->validate($request, [
+        'transaction_id' => 'required|exists:transactions,id',
+        'amount' => 'required|integer'
+    ]);
 
-        DB::beginTransaction();
-        try {
-            //CARI TRANSAKSI BERDASARKAN ID
-            $transaction = Transaction::find($request->transaction_id);
+    DB::beginTransaction();
+    try {
+        $transaction = Transaction::with(['customer'])->find($request->transaction_id);
 
-            //SET DEFAULT KEMBALI = 0
-            $customer_change = 0;
-            if ($request->customer_change) {
-                //JIKA CUSTOMER_CHANGE BERNILAI TRUE
-                $customer_change = $request->amount - $transaction->amount; //MAKA DAPATKAN BERAPA BESARAN KEMBALIANNYA
-
-                //TAMBAHKAN KE DEPOSIT CUSTOMER
-                $transaction->customer()->update(['deposit' => $transaction->customer->deposit + $customer_change]);
+        $customer_change = 0;
+        //LAKUKAN PENGECEKAN, JIKA VIA_DEPOSIT TRUE
+        if ($request->via_deposit) {
+            //MAKA DI CEK LAGI, JIKA DEPOSIT CUSTOMER KURANG DARI TOTAL TAGIHAN
+            if ($transaction->customer->deposit < $request->amount) {
+                //MAKA KIRIM RESPONSE KALO ERROR PEMBAYARANNYA
+                return response()->json(['status' => 'error', 'data' => 'Deposit Kurang!']);
             }
 
-            //SIMPAN INFO PEMBAYARAN
-            Payment::create([
-                'transaction_id' => $transaction->id,
-                'amount' => $request->amount,
-                'customer_change' => $customer_change,
-                'type' => false
-            ]);
-            //UPDATE STATUS TRANSAKSI JADI 1 BERARTI SUDAH DIBAYAR
-            $transaction->update(['status' => 1]);
-            //JIKA TIDAK ADA ERROR, COMMIT PERUBAHAN
-            DB::commit();
-            return response()->json(['status' => 'success', 'data' => $transaction]);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'failed', 'data' => $e->getMessage()]);
+            //SELAIN ITU, MAKA PERBAHARUI DEPOSIT CUSTOMER
+            $transaction->customer()->update(['deposit' => $transaction->customer->deposit - $request->amount]);
+
+        //JIKA VALUE VIA_DEPOSIT FALSE (VIA CASH)
+        } else {
+            //MAKA DI CEK LAGI, JIKA ADA KEMBALIANNYA
+            if ($request->customer_change) {
+                //DAPATKAN KEMBALIAN
+                $customer_change = $request->amount - $transaction->amount;
+
+                //DAN TAMBAHKAN KE DEPOSIT CUSTOMER
+                $transaction->customer()->update(['deposit' => $transaction->customer->deposit + $customer_change]);
+            }
         }
+
+        Payment::create([
+            'transaction_id' => $transaction->id,
+            'amount' => $request->amount,
+            'customer_change' => $customer_change,
+            'type' => $request->via_deposit //UBAH BAGIAN TIPE PEMBAYARANNYA, 0 = CASH, 1 = DEPOSIT
+        ]);
+        $transaction->update(['status' => 1]);
+        DB::commit();
+        return response()->json(['status' => 'success']);
+    } catch (\Exception $e) {
+        return response()->json(['status' => 'failed', 'data' => $e->getMessage()]);
     }
+}
 }

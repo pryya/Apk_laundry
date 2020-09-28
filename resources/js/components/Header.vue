@@ -20,16 +20,19 @@
                             <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">Settings <span class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu">
                                 <li><router-link :to="{ name: 'customers.data' }">Customer</router-link></li>
-                                <li><router-link :to="{ name: 'transactions.add' }">Transaction</router-link></li>
+                                <!-- <li><router-link :to="{ name: 'transactions.add' }">Transaction</router-link></li> -->
                                 <li><router-link :to="{name: 'role.permissions'}">Role Permission</router-link></li>
                             </ul>
                         </li>
+                        <li class="dropdown">
+                            <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">Transactions <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><router-link :to="{ name: 'transactions.list' }">List</router-link></li>
+                                <li><router-link :to="{ name: 'transactions.add' }">Add New</router-link></li>
+                            </ul>
+                        </li>
                     </ul>
-                    <form class="navbar-form navbar-left" role="search">
-                        <div class="form-group">
-                            <input type="text" class="form-control" id="navbar-search-input" placeholder="Search">
-                        </div>
-                    </form>
+
                 </div>
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">

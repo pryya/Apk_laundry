@@ -11,6 +11,11 @@
                                 <label for="">Tagihan</label>
                                 <input type="text" :value="transaction.amount" class="form-control" readonly>
                             </div>
+
+                            <div class="form-group" v-if="transaction.customer && transaction.customer.deposit >= transaction.amount">
+                                <input type="checkbox" v-model="via_deposit"> Bayar Via Deposit?
+                            </div>
+
                             <div class="form-group">
                                 <label for="">Jumlah Bayar</label>
                                 <input type="number" class="form-control" v-model="amount">
@@ -142,7 +147,21 @@
                 customer_change: false,
                 loading: false,
                 payment_message: null,
-                payment_success: false
+                payment_success: false,
+                via_deposit: false
+            }
+        },
+        watch: {
+            //JIKA VALUE NYA BERUBAH
+            via_deposit() {
+                //CEK JIKA TRUE
+                if (this.via_deposit) {
+                    //MAKA TOTAL PEMBAYARAN DISET SEJUMLAH TAGIHAN
+                    this.amount = this.transaction.amount
+                } else {
+                    //JIKA FALSE MAKA DI SET NULL KEMBALI
+                    this.amount = null
+                }
             }
         },
         computed: {
@@ -160,37 +179,43 @@
         methods: {
             ...mapActions('transaction', ['detailTransaction', 'completeItem']),
             makePayment() {
-      //JIKA JUMLAH PEMBAYARAN KURANG DARI TAGIHAN
-      if (this.amount < this.transaction.amount) {
-          //MAKA SET NOTIF ERROR
-          this.payment_message = 'Pembayaran Kurang Dari Tagihan'
-          //HENTIKAN PROSES
-          return
-      }
+                //JIKA JUMLAH PEMBAYARAN KURANG DARI TAGIHAN
+                if (this.amount < this.transaction.amount) {
+                    //MAKA SET NOTIF ERROR
+                    this.payment_message = 'Pembayaran Kurang Dari Tagihan'
+                    //HENTIKAN PROSES
+                    return
+                }
 
-      //SELAIN ITU, MAKA SET LOADING JADI TRUE
-      this.loading = true
-      //BUAT REQUEST KE SERVER
-      this.payment({
-          //DENGAN MENGIRIMKAN PARAMETER BERIKUT
-          transaction_id: this.$route.params.id,
-          amount: this.amount,
-          customer_change: this.customer_change
-      }).then(() => {
-          //SET BAHWA PAYMENT BERHASIL, DIGUNAKAN OLEH ALERT NNTINYA
-          this.payment_success = true
-          setTimeout(() => {
-              //SET LOADING JADI FALSE KEMBALI
-              this.loading = false
-              //SET SEMUA VARIABLE JADI KOSONG
-              this.amount = null,
-              this.customer_change = false,
-              this.payment_message = null
-          }, 500)
-          //AMBIL DATA TRANSAKSI TERBARU
-          this.detailTransaction(this.$route.params.id)
-      })
-  },
+                //SELAIN ITU, MAKA SET LOADING JADI TRUE
+                this.loading = true
+                //BUAT REQUEST KE SERVER
+                this.payment({
+                    //DENGAN MENGIRIMKAN PARAMETER BERIKUT
+                    transaction_id: this.$route.params.id,
+                    amount: this.amount,
+                    customer_change: this.customer_change,
+                    via_deposit: this.via_deposit
+                }).then(() => {
+                   // JIKA PEMBAYARAN BERHASIL
+                   if (res.status == 'success') {
+                       // ALERT DAN SEMUA VARIABLE DI RESET
+                       this.payment_success = true
+                       setTimeout(() => {
+                           this.loading = false,
+                           this.amount = null,
+                           this.customer_change = false,
+                           this.payment_message = null,
+                           this.via_deposit = false
+                       }, 500)
+                       this.detailTransaction(this.$route.params.id)
+                   } else {
+                       // JIKA GAGAL MAKA TAMPILKAN ALERT GAGAL
+                       this.loading = false
+                       alert(res.data)
+                   }
+                })
+            },
             //KETIKA TOMBOL MASING-MASING PESANAN DIKLIK
             isDone(id) {
                 //MAKA KITA MENAMPILKAN ALERT KONFIRMASI
