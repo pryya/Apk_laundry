@@ -50,4 +50,8 @@ Route::group(['middleware' => 'auth:api'], function() {
     Route::post('transaction/complete-item', 'API\TransactionController@completeItem');
 
     Route::post('transaction/payment', 'API\TransactionController@makePayment');
+
+    Route::get('chart', 'API\DashboardController@chart');
+
+    Route::get('export', 'API\DashboardController@exportData');
 });
